@@ -44,24 +44,25 @@ def ex8():
     inner = matrix[1:3, 1:3]
     return matrix, rows_1_4, cols_1_4, inner
 
+# Helper function to load iris data (shared by multiple exercises)
+def _load_iris(dtype=float, usecols=None, skip_header=0):
+    url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
+    try:
+        # Try local file first
+        data = np.genfromtxt('files/iris.csv', delimiter=',', dtype=dtype, encoding=None, skip_header=1 if skip_header == 0 and 'iris.csv' in 'files/iris.csv' else skip_header, usecols=usecols)
+    except:
+        # Fallback to URL
+        data = np.genfromtxt(url, delimiter=',', dtype=dtype, encoding=None, usecols=usecols)
+    return data
+
 # Exercise 9: Import iris dataset keeping text intact
 def ex9():
-    url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
-    # Use local file if available
-    try:
-        data = np.genfromtxt('files/iris.csv', delimiter=',', dtype=object, encoding=None, skip_header=1)
-    except:
-        data = np.genfromtxt(url, delimiter=',', dtype=object, encoding=None)
+    data = _load_iris(dtype=object)
     return data[:3]
 
 # Exercise 10: Missing values check
 def ex10():
-    # Load first 4 columns
-    try:
-        iris_numbers = np.genfromtxt('files/iris.csv', delimiter=',', dtype=float, encoding=None, skip_header=1, usecols=[0,1,2,3])
-    except:
-        url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
-        iris_numbers = np.genfromtxt(url, delimiter=',', dtype=float, encoding=None, usecols=[0,1,2,3])
+    iris_numbers = _load_iris(dtype=float, usecols=[0,1,2,3])
     
     # Introduce missing values for testing
     iris_numbers[1, 2] = np.nan
@@ -73,32 +74,17 @@ def ex10():
 
 # Exercise 11: Mean, median, std dev of sepallength
 def ex11():
-    try:
-        sepallength = np.genfromtxt('files/iris.csv', delimiter=',', dtype=float, encoding=None, skip_header=1, usecols=[0])
-    except:
-        url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
-        sepallength = np.genfromtxt(url, delimiter=',', dtype=float, encoding=None, usecols=[0])
-    
+    sepallength = _load_iris(dtype=float, usecols=[0])
     return np.mean(sepallength), np.median(sepallength), np.std(sepallength)
 
 # Exercise 12: 5th and 95th percentile
 def ex12():
-    try:
-        sepallength = np.genfromtxt('files/iris.csv', delimiter=',', dtype=float, encoding=None, skip_header=1, usecols=[0])
-    except:
-        url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
-        sepallength = np.genfromtxt(url, delimiter=',', dtype=float, encoding=None, usecols=[0])
-    
+    sepallength = _load_iris(dtype=float, usecols=[0])
     return np.percentile(sepallength, [5, 95])
 
 # Exercise 13: Filter iris data
 def ex13():
-    try:
-        data = np.genfromtxt('files/iris.csv', delimiter=',', dtype=float, encoding=None, skip_header=1, usecols=[0,1,2,3])
-    except:
-        url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
-        data = np.genfromtxt(url, delimiter=',', dtype=float, encoding=None, usecols=[0,1,2,3])
-    
+    data = _load_iris(dtype=float, usecols=[0,1,2,3])
     # sepallength (1st col) < 5.0 and petallength (3rd col) > 1.5
     condition = (data[:, 0] < 5.0) & (data[:, 2] > 1.5)
     return data[condition]
