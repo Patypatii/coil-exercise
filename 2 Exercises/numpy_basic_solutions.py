@@ -1,4 +1,10 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Ensure reports directory exists
+if not os.path.exists('reports'):
+    os.makedirs('reports')
 
 # Exercise 1: 3x3 matrix with values ranging from 2 to 10
 def ex1():
@@ -55,39 +61,65 @@ def _load_iris(dtype=float, usecols=None, skip_header=0):
         data = np.genfromtxt(url, delimiter=',', dtype=dtype, encoding=None, usecols=usecols)
     return data
 
+# --- DRY: Load data once for all exercises ---
+# iris_object: used for Exercise 9 (keeping text intact)
+# iris_numeric: used for Exercises 10-14 (calculations and plotting)
+
+_iris_object = _load_iris(dtype=object)
+_iris_numeric = _load_iris(dtype=float, usecols=[0,1,2,3])
+
 # Exercise 9: Import iris dataset keeping text intact
 def ex9():
-    data = _load_iris(dtype=object)
-    return data[:3]
+    return _iris_object[:3]
 
 # Exercise 10: Missing values check
 def ex10():
-    iris_numbers = _load_iris(dtype=float, usecols=[0,1,2,3])
+    # Work on a copy if we're going to modify it for testing
+    data = _iris_numeric.copy()
     
     # Introduce missing values for testing
-    iris_numbers[1, 2] = np.nan
-    iris_numbers[2, 2] = np.nan
+    data[1, 2] = np.nan
+    data[2, 2] = np.nan
     
-    missing_count = np.isnan(iris_numbers[:, 0]).sum()
-    missing_positions = np.where(np.isnan(iris_numbers[:, 0]))
+    missing_count = np.isnan(data[:, 0]).sum()
+    missing_positions = np.where(np.isnan(data[:, 0]))
     return missing_count, missing_positions
 
 # Exercise 11: Mean, median, std dev of sepallength
 def ex11():
-    sepallength = _load_iris(dtype=float, usecols=[0])
+    sepallength = _iris_numeric[:, 0]
     return np.mean(sepallength), np.median(sepallength), np.std(sepallength)
 
 # Exercise 12: 5th and 95th percentile
 def ex12():
-    sepallength = _load_iris(dtype=float, usecols=[0])
+    sepallength = _iris_numeric[:, 0]
     return np.percentile(sepallength, [5, 95])
 
 # Exercise 13: Filter iris data
 def ex13():
-    data = _load_iris(dtype=float, usecols=[0,1,2,3])
     # sepallength (1st col) < 5.0 and petallength (3rd col) > 1.5
-    condition = (data[:, 0] < 5.0) & (data[:, 2] > 1.5)
-    return data[condition]
+    condition = (_iris_numeric[:, 0] < 5.0) & (_iris_numeric[:, 2] > 1.5)
+    return _iris_numeric[condition]
+
+# Exercise 14: Data Visualization (Added based on feedback)
+def ex14():
+    plt.figure(figsize=(10, 6))
+    plt.scatter(_iris_numeric[:, 0], _iris_numeric[:, 1], c='blue', alpha=0.5)
+    plt.title('Iris Sepal Length vs Width')
+    plt.xlabel('Sepal Length')
+    plt.ylabel('Sepal Width')
+    plt.grid(True)
+    plt.savefig('reports/sepal_scatter.png')
+    plt.show()
+
+    plt.figure(figsize=(10, 6))
+    plt.hist(_iris_numeric[:, 2], bins=20, color='green', alpha=0.7)
+    plt.title('Distribution of Petal Length')
+    plt.xlabel('Petal Length')
+    plt.ylabel('Frequency')
+    plt.savefig('reports/petal_distribution.png')
+    plt.show()
+    return "Plots saved to reports/ directory."
 
 if __name__ == "__main__":
     print("Testing NumPy Basic Exercises...")
@@ -104,3 +136,4 @@ if __name__ == "__main__":
     print(f"Ex 11: {ex11()}")
     print(f"Ex 12: {ex12()}")
     print(f"Ex 13:\n{ex13()}")
+    print(f"Ex 14: {ex14()}")
